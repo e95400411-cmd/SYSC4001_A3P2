@@ -3,16 +3,42 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <signal.h>
+#include <semaphore.h>
+#include <fcntl.h>
 
 #define NUM_STUDENTS 20
+#define SEM "/mutex"
+
+sem_t* sem;
+
+void sig_catcher(int signum) {
+    if (signum == SIGTERM || signum == SIGINT) {
+        printf("TA terminated\n");
+        sem_close(sem);
+        exit(0);
+    }
+    
+}
 
 int main(int argc, char* argv[]) {
+    //signal catcher
+    signal(SIGTERM, sig_catcher);
+    signal(SIGINT, sig_catcher);
+
     //set random seed
     srand(clock());
 
     //TA number
     int num = atoi(argv[0]);
     printf("TA %d created\n", num);
+
+    //open semaphore
+    sem = sem_open(SEM, O_CREAT);
+    if (sem == SEM_FAILED){
+        perror("semaphore failed to open");
+        exit(1);
+    }
 
     while(1) {
         //open student for read
@@ -31,8 +57,8 @@ int main(int argc, char* argv[]) {
         
         //terminate immediately if student number = 9999
         if (atoi(student) == 9999) {
-            printf("Student 9999 detected: terminating");
-            exit(0);
+            printf("Student 9999 detected: terminating\n");
+            sig_catcher(SIGTERM);
         }
 
         //wait before checking student num?????
@@ -40,6 +66,8 @@ int main(int argc, char* argv[]) {
 
         int question = rand() % 5 + 1;
 
+        //wait until rubric is available
+        sem_wait(sem);
         FILE* rubricptr = fopen("./rubric.txt", "r+");
         if (rubricptr == NULL) {
             perror("Rubric open error");
@@ -54,7 +82,6 @@ int main(int argc, char* argv[]) {
             strcat(rubric, line);
         }
         rewind(rubricptr);
-        //fclose(rubricptr);
 
         //printf("%s\n", rubric);
 
@@ -73,11 +100,14 @@ int main(int argc, char* argv[]) {
             printf("TA: %d, changing rubric question %d from %c to %c\n", num, question, *qtoedit, (*qtoedit - 64) % 26 + 65);
             
             *qtoedit = (*qtoedit - 64) % 26 + 65; //if prev was Z, edit is A
-            
+
             //write back to rubric
             fputs(rubric, rubricptr);
+            
         }
         fclose(rubricptr);
+        //allow other processes to access rubric
+        sem_post(sem);
 
         //wait 2.5s to 3.5s
         usleep(2500000 + rand() % 11 * 100000);

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 
 
 
@@ -32,11 +32,10 @@ int main(int argc, char* argv[]) {
             perror("fork err");
             return 1;
         }
-        else if (pids[i] == 0) { //child (process 2)
+        else if (pids[i] == 0) {
             char num[8];
             sprintf(num, "%d", i);
             execl("./ta", num, NULL);
-            //printf("child %d\n", i);
         }
     }
     printf("parent\n");
@@ -44,6 +43,12 @@ int main(int argc, char* argv[]) {
     int status;
     do {
         pid_t terminated = wait(&status); //if one of the children exits, all terminate
+        if (errno == ECHILD) { //if no children remaining, stop waiting
+            break;
+        }
+        else if (status != 0) {
+            perror("child process exit failure");
+        }
     } while (status != 0); //only terminate other processes if child exited successfully
 
     for (int i = 0; i < n; i++) {
