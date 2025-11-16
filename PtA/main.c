@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
@@ -9,9 +10,9 @@
 
 
 int main(int argc, char* argv[]) {
-    //number of processes
-    int n; 
-    
+    //number of processes/Tas
+    int n;
+
     if (argv[1] != NULL) {
         n = atoi(argv[1]);
     }
@@ -19,7 +20,7 @@ int main(int argc, char* argv[]) {
         //n = rand() % 10;
         n = 2;
     }
-    
+
     printf("num of TAs = %d\n", n);
 
     //child processes
@@ -39,7 +40,7 @@ int main(int argc, char* argv[]) {
         }
     }
     printf("parent\n");
-    
+
     int status;
     do {
         pid_t terminated = wait(&status); //if one of the children exits, all terminate
