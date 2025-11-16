@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
 
     //TA number
     int num = atoi(argv[0]);
-    printf("TA %d created\n", num);
+    printf("TA: %d, created\n", num);
 
     //open semaphore
     sem = sem_open(SEM, O_CREAT);
@@ -62,12 +62,13 @@ int main(int argc, char* argv[]) {
         }
 
         //wait before checking student num?????
-        printf("TA: %d, marking exam of student: %s\n", num, student);
+        printf("TA: %d, marking exam of student %s\n", num, student);
 
         int question = rand() % 5 + 1;
 
         //wait until rubric is available
         sem_wait(sem);
+        printf("TA: %d, accessing rubric\n", num);
         FILE* rubricptr = fopen("./rubric.txt", "r+");
         if (rubricptr == NULL) {
             perror("Rubric open error");
@@ -107,11 +108,12 @@ int main(int argc, char* argv[]) {
         }
         fclose(rubricptr);
         //allow other processes to access rubric
+        printf("TA: %d, releasing rubric\n", num);
         sem_post(sem);
 
         //wait 2.5s to 3.5s
         usleep(2500000 + rand() % 11 * 100000);
-        printf("TA: %d, marked student %s, question %d\n", num, student, question);
+        printf("TA: %d, finished marking student %s, question %d\n", num, student, question);
     }
 
     //sleep(1);
