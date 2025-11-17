@@ -7,6 +7,7 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/wait.h>
 //shared memory?????????????
 
 #define SEM "/mutex"
@@ -26,6 +27,7 @@ void killall() {
     sem_close(sem);
     sem_unlink(SEM);
     printf("process finished\n");
+    free(pids);
     exit(0);
 }
 
@@ -44,7 +46,6 @@ int main(int argc, char* argv[]) {
     signal(SIGINT, sig_catcher);
     
     //create semaphore
-    sem_unlink(SEM);
     sem = sem_open(SEM, O_CREAT| O_EXCL, 0666, 1);
     if (sem == SEM_FAILED){
         perror("semaphore failed to create");
@@ -91,6 +92,4 @@ int main(int argc, char* argv[]) {
     } while (status != 0); //only terminate other processes if child exited successfully
 
     killall();
-
-
 }

@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 
     while(1) {
         //open student for read
-        int sfilenum = rand() % 20;
+        int sfilenum = rand() % NUM_STUDENTS;
         char sfile[NUM_STUDENTS];
         sprintf(sfile, "../Students/s%d.txt", sfilenum);
         FILE* studentptr = fopen(sfile, "r");
@@ -51,6 +51,7 @@ int main(int argc, char* argv[]) {
             exit(1);
         }
 
+        //get student number
         char student[5];
         fgets(student, sizeof(student), studentptr);
         fclose(studentptr);
