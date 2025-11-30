@@ -6,7 +6,7 @@ Enzo Chen, 101306299
 Antoine Hickey, 101295764
 
 ## Description
-> This code is intended to fulfill the original requirements of SYSC 4001 Assignment 3 Part 2, before the changes made on November 18, 2025. A copy of the original requirements is included in this repository. See `a3.pdf` for instructions.
+> This code is intended to fulfill the original requirements of SYSC 4001 Assignment 3 Part 2, before the changes made on November 18, 2025. **None of the file content have been edited since that date**. For this reason, the names of the main files do not include student numbers. A copy of the original requirements is included in this repository. See `a3.pdf` for instructions. 
 
 The aim of this code is learn about concurrency issues by simulating a variable number of TAs who need to mark students and read exams. Each TA process can read student exams, simulated with text files containing a 4 digit ID, and a rubric, with question numbers and corresponding answers. TAs can choose to edit the rubric at random, modifying one queston at a time. Because of this, concurrency issues can occur, so a semaphore is implemented in Part B to resolve them by ensuring only one TA can access the rubric at a time.
 
